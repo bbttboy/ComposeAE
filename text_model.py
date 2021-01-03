@@ -66,6 +66,8 @@ class TextLSTMModel(torch.nn.Module):
 
         super(TextLSTMModel, self).__init__()
 
+        # 循环texts中的text，将其添加到单词本中
+        # 即初始化(创建)单词本
         self.vocab = SimpleVocab()
         for text in texts_to_build_vocab:
             self.vocab.add_text_to_vocab(text)
@@ -73,10 +75,14 @@ class TextLSTMModel(torch.nn.Module):
 
         self.word_embed_dim = word_embed_dim
         self.lstm_hidden_dim = lstm_hidden_dim
+        # 输入参数为单词本的词数和需要embedding的维度
+        # 网络创建后，输入对应单词id，输出设置维度的向量
         self.embedding_layer = torch.nn.Embedding(vocab_size, word_embed_dim)
+        # 参数为'输入维度'和'隐藏层维度'
         self.lstm = torch.nn.LSTM(word_embed_dim, lstm_hidden_dim)
         self.fc_output = torch.nn.Sequential(
             torch.nn.Dropout(p=0.1),
+            # Linear是全连接层,参数是‘输入维度’和‘输出维度’
             torch.nn.Linear(lstm_hidden_dim, lstm_hidden_dim),
         )
 
@@ -84,20 +90,30 @@ class TextLSTMModel(torch.nn.Module):
         """ input x: list of strings"""
         if type(x) is list:
             if type(x[0]) is str or type(x[0]) is unicode:
+                # 通过创建后的单词本 为x中每个句子text编码
                 x = [self.vocab.encode_text(text) for text in x]
+        # assert-->断言：用于判断一个表达式，在表达式条件为 false 的时候触发异常
         assert type(x) is list
         assert type(x[0]) is list
+        # 为什么是int ??!!
         assert type(x[0][0]) is int
         return self.forward_encoded_texts(x)
 
+    # 参数texts是编码后的list，如[2, 6, 8, 1]
     def forward_encoded_texts(self, texts):
         # to tensor
         lengths = [len(t) for t in texts]
+        # 加'.long()'是为了使zeros矩阵从浮点类型变成整形
         itexts = torch.zeros((np.max(lengths), len(texts))).long()
+        # 将texts放入torch.tensor的2维张量中，不足的地方用0占位。
+        # 每一列对应每一个编码后的text
         for i in range(len(texts)):
             itexts[:lengths[i], i] = torch.tensor(texts[i])
 
         # embed words
+        # tensor创建时默认cpu类型，加'.cuda()'是将数据类型转换维gpu类型
+        # 在这里是将 'torch.LongTensor' 转换为 'torch.cuda.LongTensor'
+        # 为什么要将输入放入Variable??!!
         itexts = torch.autograd.Variable(itexts).cuda()
         etexts = self.embedding_layer(itexts)
 
