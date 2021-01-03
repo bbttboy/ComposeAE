@@ -33,6 +33,7 @@ class SimpleVocab(object):
         tokens = str(text).lower().translate(str.maketrans('', '', string.punctuation)).strip().split()
         return tokens
 
+    # 将文本中的单词添加到单词本，并更新单词id和相应单词计数
     def add_text_to_vocab(self, text):
         tokens = self.tokenize_text(text)
         for token in tokens:
@@ -46,6 +47,7 @@ class SimpleVocab(object):
             if self.wordcount[w] < wordcount_threshold:
                 self.word2id[w] = 0
 
+    # 通过单词本对text进行编码
     def encode_text(self, text):
         tokens = self.tokenize_text(text)
         x = [self.word2id.get(t, 0) for t in tokens]

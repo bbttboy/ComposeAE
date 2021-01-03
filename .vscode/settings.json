@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "C:\\IDE\\miniconda3\\envs\\pt\\python.exe",
+    "python.linting.pylintArgs": ["C:\\IDE\\miniconda3\\envs\\pt\\Scripts\\pylint.exe"],
+}
