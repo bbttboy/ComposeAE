@@ -33,6 +33,8 @@ class ConCatModule(torch.nn.Module):
         super(ConCatModule, self).__init__()
 
     def forward(self, x):
+        # torch.cat((A,B), dim)-->按照dim维度将AB进行拼接
+        # 除拼接维数dim数值可不同外其余维数数值需相同，方能对齐。
         x = torch.cat(x, 1)
 
         return x
@@ -61,13 +63,14 @@ class ImgTextCompositionBase(torch.nn.Module):
                      text_query,
                      imgs_target,
                      soft_triplet_loss=True):
+        # dct --> discrete consine transform(离散余弦变换)？
         dct_with_representations = self.compose_img_text(imgs_query, text_query)
         composed_source_image = self.normalization_layer(dct_with_representations["repres"])
         target_img_features_non_norm = self.extract_img_feature(imgs_target)
         target_img_features = self.normalization_layer(target_img_features_non_norm)
         assert (composed_source_image.shape[0] == target_img_features.shape[0] and
                 composed_source_image.shape[1] == target_img_features.shape[1])
-        # Get Rot_Sym_Loss
+        # Get Rot_Sym_Loss --> Rotational Symmetry Loss(旋转对称损失)
         if self.name == 'composeAE':
             CONJUGATE = Variable(torch.cuda.FloatTensor(32, 1).fill_(-1.0), requires_grad=False)
             conjugate_representations = self.compose_img_text_features(target_img_features_non_norm, dct_with_representations["text_features"], CONJUGATE)
@@ -117,15 +120,21 @@ class ImgEncoderTextEncoderBase(ImgTextCompositionBase):
     def __init__(self, text_query, image_embed_dim, text_embed_dim, use_bert, name):
         super().__init__()
         # img model
+        # pretrained表示是否是预训练模型
         img_model = torchvision.models.resnet18(pretrained=True)
         self.name = name
 
         class GlobalAvgPool2d(torch.nn.Module):
 
             def forward(self, x):
+                # (1,1)表示输出的维度
+                # 例如输入x.shape=(512, 3, 64, 64)，输出的shape=(512, 3, 1, 1)
+                # 即求(64, 64)的平均值
                 return F.adaptive_avg_pool2d(x, (1, 1))
 
         img_model.avgpool = GlobalAvgPool2d()
+        # fc --> full connection 全连接层，即线性层
+        # Linear(in, out)两个参数表示输入和输出的维度
         img_model.fc = torch.nn.Sequential(torch.nn.Linear(image_embed_dim, image_embed_dim))
         self.img_model = img_model
 
