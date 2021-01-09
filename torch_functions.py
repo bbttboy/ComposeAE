@@ -121,6 +121,7 @@ class NormalizationLayer(torch.nn.Module):
     super(NormalizationLayer, self).__init__()
     # normalize_scale-->缩放参数？
     self.norm_s = float(normalize_scale)
+    # 是否是把normalize_scale作为变量进行学习？
     if learn_scale:
       self.norm_s = torch.nn.Parameter(torch.FloatTensor((self.norm_s,)))
 
