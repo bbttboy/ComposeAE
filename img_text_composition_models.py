@@ -47,7 +47,7 @@ class ImgTextCompositionBase(torch.nn.Module):
         self.normalization_layer = torch_functions.NormalizationLayer(
             normalize_scale=4.0, learn_scale=True)
         self.soft_triplet_loss = torch_functions.TripletLoss()
-#         self.name = 'model_name'
+        #　self.name = 'model_name'
 
     def extract_img_feature(self, imgs):
         raise NotImplementedError
@@ -72,11 +72,13 @@ class ImgTextCompositionBase(torch.nn.Module):
                 composed_source_image.shape[1] == target_img_features.shape[1])
         # Get Rot_Sym_Loss --> Rotational Symmetry Loss(旋转对称损失)
         if self.name == 'composeAE':
+            # conjugate --> 共轭
             CONJUGATE = Variable(torch.cuda.FloatTensor(32, 1).fill_(-1.0), requires_grad=False)
             conjugate_representations = self.compose_img_text_features(target_img_features_non_norm, dct_with_representations["text_features"], CONJUGATE)
             composed_target_image = self.normalization_layer(conjugate_representations["repres"])
             source_img_features = self.normalization_layer(dct_with_representations["img_features"]) #img1
             if soft_triplet_loss:
+                # rot_sym_loss --> Rotational Symmetry Loss --> 旋转对称损失
                 dct_with_representations ["rot_sym_loss"]= \
                     self.compute_soft_triplet_loss_(composed_target_image,source_img_features)
             else:
