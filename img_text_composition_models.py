@@ -204,7 +204,9 @@ class TIRG(ImgEncoderTextEncoderBase):
         return dct_with_representations
 
 class ComplexProjectionModule(torch.nn.Module):
-
+    """
+    introduce: 复映射模块
+    """
     def __init__(self, image_embed_dim =512, text_embed_dim = 768):
         super().__init__()
         self.bert_features = torch.nn.Sequential(
