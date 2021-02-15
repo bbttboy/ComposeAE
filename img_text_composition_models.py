@@ -210,6 +210,8 @@ class ComplexProjectionModule(torch.nn.Module):
     def __init__(self, image_embed_dim =512, text_embed_dim = 768):
         super().__init__()
         self.bert_features = torch.nn.Sequential(
+            # BatchNorm1d中参数num_features说明
+            # num_features – L from an expected input of size (N, L, C) or L from input of size (N, L)
             torch.nn.BatchNorm1d(text_embed_dim),
             torch.nn.Linear(text_embed_dim, image_embed_dim),
             torch.nn.ReLU(),
@@ -223,6 +225,7 @@ class ComplexProjectionModule(torch.nn.Module):
             torch.nn.Linear(image_embed_dim, image_embed_dim),
         )
 
+    # 该函数不明觉厉 02/15
     def forward(self, x):
         x1 = self.image_features(x[0])
         x2 = self.bert_features(x[1])
