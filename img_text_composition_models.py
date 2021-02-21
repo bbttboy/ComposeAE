@@ -282,7 +282,8 @@ class ConvMapping(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.Linear(image_embed_dim, image_embed_dim)
         )
-        # in_channels, output channels
+        # Conv1d中kernel_size相当于滑动窗口的大小
+        # in_channels=5, out_channels=64, padding是在输入外加一圈0-
         self.conv = torch.nn.Conv1d(5, 64, kernel_size=3, padding=1)
         self.adaptivepooling = torch.nn.AdaptiveMaxPool1d(16)
 
