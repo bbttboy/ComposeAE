@@ -215,8 +215,11 @@ def train_loop(opt, loss_weights, logger, trainset, testset, model, optimizer):
             avg_loss = np.mean(losses_tracking[loss_name][-len(trainloader):])
             print('    Loss', loss_name, round(avg_loss, 4))
             logger.add_scalar(loss_name, avg_loss, it)
+        # 通用api
+        # 通用格式 add_something(tag name, object, iteration number)
         logger.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], it)
 
+        # 回收被销毁了但是没有被释放的循环引用的对象
         if epoch % 1 == 0:
             gc.collect()
 
